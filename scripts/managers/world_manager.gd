@@ -17,48 +17,49 @@ var player_ref: Node3D = null
 var update_timer: float = 0.0
 
 func _ready() -> void:
-	print("WorldManager initialized")
+	Log.debug("WorldManager initialized")
 	# Find player after a short delay to ensure it's spawned
 	call_deferred("_find_player")
 
 func _find_player() -> void:
 	"""Find the player vehicle in the scene"""
-	player_ref = get_tree().get_first_node_in_group("player")
-	if not player_ref:
-		# Try to find by name
-		var root = get_tree().current_scene
-		if root:
-			player_ref = root.find_child("PlayerVehicle", true, false)
+	while true:
+		player_ref = get_tree().get_first_node_in_group("player")
+		if not player_ref:
+			# Try to find by name
+			var root = get_tree().current_scene
+			if root:
+				player_ref = root.find_child("PlayerVehicle", true, false)
 
-	if player_ref:
-		print("WorldManager: Player found at position: ", player_ref.global_position)
+		if player_ref:
+			Log.debug("WorldManager: Player found at position: ", player_ref.global_position)
 
-		# Freeze player physics until chunks are loaded
-		if player_ref is RigidBody3D:
-			player_ref.freeze = true
-			print("WorldManager: Player frozen")
+			# Freeze player physics until chunks are loaded
+			if player_ref is RigidBody3D:
+				player_ref.freeze = true
+				Log.debug("WorldManager: Player frozen")
 
-		# Load initial chunks synchronously to prevent falling
-		_load_initial_chunks(player_ref.global_position)
+			# Load initial chunks synchronously to prevent falling
+			_load_initial_chunks(player_ref.global_position)
 
-		# Wait one frame for physics to register
-		await get_tree().process_frame
+			# Wait one frame for physics to register
+			await get_tree().process_frame
 
-		# Unfreeze player
-		if player_ref is RigidBody3D:
-			player_ref.freeze = false
-			print("WorldManager: Player unfrozen")
-	else:
-		print("WorldManager: Player not found, retrying...")
+			# Unfreeze player
+			if player_ref is RigidBody3D:
+				player_ref.freeze = false
+				Log.debug("WorldManager: Player unfrozen")
+			return
+
+		Log.debug("WorldManager: Player not found, retrying...")
 		await get_tree().create_timer(0.5).timeout
-		_find_player()
 
 func _load_initial_chunks(player_position: Vector3) -> void:
 	"""Load initial chunks synchronously around player spawn point"""
 	var current_chunk = get_chunk_coord(player_position)
 	player_chunk = current_chunk
 
-	print("WorldManager: Loading initial chunks around ", current_chunk)
+	Log.debug("WorldManager: Loading initial chunks around ", current_chunk)
 
 	# Load all chunks within radius synchronously
 	for x in range(-LOAD_RADIUS, LOAD_RADIUS + 1):
@@ -66,7 +67,7 @@ func _load_initial_chunks(player_position: Vector3) -> void:
 			var coord = current_chunk + Vector2i(x, y)
 			_load_chunk_sync(coord)
 
-	print("WorldManager: Initial chunks loaded: ", loaded_chunks.size())
+	Log.debug("WorldManager: Initial chunks loaded: ", loaded_chunks.size())
 
 func _process(delta: float) -> void:
 	"""Update chunk loading based on player position"""
@@ -83,6 +84,7 @@ func _process(delta: float) -> void:
 
 func _process_loading_chunks() -> void:
 	"""Check status of chunks being loaded asynchronously"""
+	var to_remove: Array[Vector2i] = []
 	for coord in loading_chunks.keys():
 		var path = loading_chunks[coord]
 		var status = ResourceLoader.load_threaded_get_status(path)
@@ -91,10 +93,13 @@ func _process_loading_chunks() -> void:
 			var scene = ResourceLoader.load_threaded_get(path)
 			if scene:
 				_instantiate_chunk(coord, scene)
-			loading_chunks.erase(coord)
+			to_remove.append(coord)
 		elif status == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE or status == ResourceLoader.THREAD_LOAD_FAILED:
-			print("WorldManager: Failed to load chunk at ", coord)
-			loading_chunks.erase(coord)
+			Log.debug("WorldManager: Failed to load chunk at ", coord)
+			to_remove.append(coord)
+
+	for coord in to_remove:
+		loading_chunks.erase(coord)
 
 func get_chunk_coord(world_position: Vector3) -> Vector2i:
 	"""Convert world position to chunk coordinate"""
@@ -157,7 +162,7 @@ func _load_chunk_sync(chunk_coord: Vector2i) -> void:
 		chunk_cache.erase(chunk_coord)
 		loaded_chunks[chunk_coord] = cached_chunk
 		get_tree().current_scene.add_child(cached_chunk)
-		print("WorldManager: Loaded chunk from cache: ", chunk_coord)
+		Log.debug("WorldManager: Loaded chunk from cache: ", chunk_coord)
 		return
 
 	# Check if chunk file exists
@@ -170,9 +175,9 @@ func _load_chunk_sync(chunk_coord: Vector2i) -> void:
 	var scene = load(path)
 	if scene:
 		_instantiate_chunk(chunk_coord, scene)
-		print("WorldManager: Loaded chunk synchronously: ", chunk_coord)
+		Log.debug("WorldManager: Loaded chunk synchronously: ", chunk_coord)
 	else:
-		print("WorldManager: Failed to load chunk: ", chunk_coord)
+		Log.debug("WorldManager: Failed to load chunk: ", chunk_coord)
 
 func load_chunk(chunk_coord: Vector2i) -> void:
 	"""Load a chunk at the given coordinate (asynchronously)"""
@@ -186,7 +191,7 @@ func load_chunk(chunk_coord: Vector2i) -> void:
 		chunk_cache.erase(chunk_coord)
 		loaded_chunks[chunk_coord] = cached_chunk
 		get_tree().current_scene.add_child(cached_chunk)
-		print("WorldManager: Loaded chunk from cache: ", chunk_coord)
+		Log.debug("WorldManager: Loaded chunk from cache: ", chunk_coord)
 		return
 
 	# Check if chunk file exists
@@ -199,9 +204,9 @@ func load_chunk(chunk_coord: Vector2i) -> void:
 	var err = ResourceLoader.load_threaded_request(path)
 	if err == OK:
 		loading_chunks[chunk_coord] = path
-		print("WorldManager: Loading chunk async: ", chunk_coord)
+		Log.debug("WorldManager: Loading chunk async: ", chunk_coord)
 	else:
-		print("WorldManager: Failed to start loading chunk: ", chunk_coord)
+		Log.debug("WorldManager: Failed to start loading chunk: ", chunk_coord)
 
 func _instantiate_chunk(chunk_coord: Vector2i, scene: PackedScene) -> void:
 	"""Instantiate and add a chunk to the scene"""
@@ -209,15 +214,15 @@ func _instantiate_chunk(chunk_coord: Vector2i, scene: PackedScene) -> void:
 	var world_pos = get_chunk_world_position(chunk_coord)
 	chunk_instance.position = world_pos
 
-	# Set chunk data if the chunk has the script
-	if chunk_instance.has_method("set") and chunk_instance.get("chunk_data") != null:
+	# Set chunk metadata for chunk scenes.
+	if chunk_instance is Chunk:
 		var chunk_data = ChunkData.new(chunk_coord, get_chunk_path(chunk_coord))
 		chunk_data.is_loaded = true
 		chunk_instance.chunk_data = chunk_data
 
 	get_tree().current_scene.add_child(chunk_instance)
 	loaded_chunks[chunk_coord] = chunk_instance
-	print("WorldManager: Chunk instantiated at ", world_pos, ": ", chunk_coord, " (", chunk_instance.name, ")")
+	Log.debug("WorldManager: Chunk instantiated at ", world_pos, ": ", chunk_coord, " (", chunk_instance.name, ")")
 
 func unload_chunk(chunk_coord: Vector2i) -> void:
 	"""Unload a chunk at the given coordinate"""
@@ -233,11 +238,11 @@ func unload_chunk(chunk_coord: Vector2i) -> void:
 	# Add to cache if there's space
 	if chunk_cache.size() < CACHE_SIZE:
 		chunk_cache[chunk_coord] = chunk
-		print("WorldManager: Cached chunk: ", chunk_coord)
+		Log.debug("WorldManager: Cached chunk: ", chunk_coord)
 	else:
 		# Free the chunk
 		chunk.queue_free()
-		print("WorldManager: Unloaded chunk: ", chunk_coord)
+		Log.debug("WorldManager: Unloaded chunk: ", chunk_coord)
 
 func clear_all_chunks() -> void:
 	"""Clear all loaded and cached chunks"""
@@ -250,4 +255,4 @@ func clear_all_chunks() -> void:
 	chunk_cache.clear()
 
 	loading_chunks.clear()
-	print("WorldManager: All chunks cleared")
+	Log.debug("WorldManager: All chunks cleared")

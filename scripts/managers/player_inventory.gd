@@ -11,7 +11,7 @@ var equipped_parts: Dictionary = {
 }
 
 func _ready() -> void:
-	print("PlayerInventory initialized")
+	Log.debug("PlayerInventory initialized")
 	_initialize_default_parts()
 
 func _initialize_default_parts() -> void:
@@ -23,7 +23,7 @@ func add_part(part_id: String) -> void:
 	"""Unlock a new part"""
 	if part_id not in unlocked_parts:
 		unlocked_parts.append(part_id)
-		print("Part unlocked: ", part_id)
+		Log.debug("Part unlocked: ", part_id)
 
 func has_part(part_id: String) -> bool:
 	"""Check if player owns a specific part"""
@@ -33,4 +33,4 @@ func equip_part(part_id: String, slot: String) -> void:
 	"""Equip a part to a specific slot"""
 	if has_part(part_id) and slot in equipped_parts:
 		equipped_parts[slot] = part_id
-		print("Part equipped: ", part_id, " to slot: ", slot)
+		Log.debug("Part equipped: ", part_id, " to slot: ", slot)

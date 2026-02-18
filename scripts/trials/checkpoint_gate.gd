@@ -16,7 +16,7 @@ signal checkpoint_passed(index: int)
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	_setup_visuals()
-	print("CheckpointGate ready at position: ", global_position, " index: ", checkpoint_index)
+	Log.debug("CheckpointGate ready at position: ", global_position, " index: ", checkpoint_index)
 
 func _setup_visuals() -> void:
 	"""Setup visual appearance"""
@@ -46,7 +46,7 @@ func _on_body_entered(body: Node3D) -> void:
 
 	# Check if this is the next checkpoint
 	if checkpoint_index != trial.current_checkpoint:
-		print("CheckpointGate: Wrong checkpoint order! Expected ", trial.current_checkpoint, " got ", checkpoint_index)
+		Log.debug("CheckpointGate: Wrong checkpoint order! Expected ", trial.current_checkpoint, " got ", checkpoint_index)
 		return
 
 	# Mark as passed

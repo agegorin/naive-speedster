@@ -43,7 +43,7 @@ func _on_trial_started(trial: Trial) -> void:
 	# Show start notification
 	_show_notification("Trial Started: " + trial.definition.display_name)
 
-	print("TrialHUD: Showing HUD for trial: ", trial.definition.display_name)
+	Log.debug("TrialHUD: Showing HUD for trial: ", trial.definition.display_name)
 
 func _on_trial_completed(trial_id: String, success: bool) -> void:
 	"""Hide HUD when trial completes"""
@@ -100,4 +100,4 @@ func _show_notification(text: String) -> void:
 	notification_label.text = text
 	notification_label.show()
 	notification_timer = NOTIFICATION_DURATION
-	print("TrialHUD: ", text)
+	Log.debug("TrialHUD: ", text)

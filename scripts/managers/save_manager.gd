@@ -7,17 +7,17 @@ const SAVE_PATH = "user://savegame.save"
 const SAVE_VERSION = 1
 
 func _ready() -> void:
-	print("SaveManager initialized")
+	Log.debug("SaveManager initialized")
 
 func save_game() -> void:
 	"""Save current game state to disk"""
 	# TODO: Implement save functionality
-	print("Save game called (stub)")
+	Log.debug("Save game called (stub)")
 
 func load_game() -> Dictionary:
 	"""Load game state from disk"""
 	# TODO: Implement load functionality
-	print("Load game called (stub)")
+	Log.debug("Load game called (stub)")
 	return {}
 
 func has_save_file() -> bool:
@@ -27,5 +27,6 @@ func has_save_file() -> bool:
 func delete_save() -> void:
 	"""Delete the current save file"""
 	if has_save_file():
-		DirAccess.remove_absolute(SAVE_PATH)
-		print("Save file deleted")
+		var absolute_path = ProjectSettings.globalize_path(SAVE_PATH)
+		DirAccess.remove_absolute(absolute_path)
+		Log.debug("Save file deleted")

@@ -13,7 +13,7 @@ signal trial_completed(trial_id: String, success: bool)
 signal trial_available(trial_id: String, position: Vector3)
 
 func _ready() -> void:
-	print("TrialManager initialized")
+	Log.debug("TrialManager initialized")
 
 func _process(delta: float) -> void:
 	"""Update active trial"""
@@ -26,23 +26,23 @@ func register_trial(definition: TrialDefinition) -> void:
 		push_error("TrialManager: Cannot register trial with empty ID")
 		return
 
-	print("TrialManager: Registering trial with ", definition.trial_objects.size(), " objects")
+	Log.debug("TrialManager: Registering trial with ", definition.trial_objects.size(), " objects")
 	trial_definitions[definition.id] = definition
-	print("TrialManager: Registered trial: ", definition.id, " (", definition.display_name, ")")
-	print("TrialManager: Stored definition has ", trial_definitions[definition.id].trial_objects.size(), " objects")
+	Log.debug("TrialManager: Registered trial: ", definition.id, " (", definition.display_name, ")")
+	Log.debug("TrialManager: Stored definition has ", trial_definitions[definition.id].trial_objects.size(), " objects")
 
 func get_trial_definition(trial_id: String) -> TrialDefinition:
 	"""Get a trial definition by ID"""
 	if trial_definitions.has(trial_id):
 		var def = trial_definitions[trial_id]
-		print("TrialManager: Retrieved definition for ", trial_id, " has ", def.trial_objects.size(), " objects")
+		Log.debug("TrialManager: Retrieved definition for ", trial_id, " has ", def.trial_objects.size(), " objects")
 		return def
-	print("TrialManager: No definition found for ", trial_id)
+	Log.debug("TrialManager: No definition found for ", trial_id)
 	return null
 
 func start_trial(trial_id: String) -> bool:
 	"""Start a trial by its ID"""
-	print("TrialManager: start_trial called for: ", trial_id)
+	Log.debug("TrialManager: start_trial called for: ", trial_id)
 
 	# Check if another trial is active
 	if active_trial != null:
@@ -55,11 +55,11 @@ func start_trial(trial_id: String) -> bool:
 		push_error("TrialManager: Trial definition not found: ", trial_id)
 		return false
 
-	print("TrialManager: Trial definition found, has ", definition.trial_objects.size(), " objects to spawn")
+	Log.debug("TrialManager: Trial definition found, has ", definition.trial_objects.size(), " objects to spawn")
 
 	# Check if already completed
 	if is_trial_completed(trial_id):
-		print("TrialManager: Trial already completed: ", trial_id)
+		Log.debug("TrialManager: Trial already completed: ", trial_id)
 		# Allow replay for now
 		pass
 
@@ -81,9 +81,9 @@ func _spawn_trial_objects(definition: TrialDefinition) -> void:
 	var spawn_parent = get_tree().current_scene
 	var checkpoint_index = 0
 
-	print("TrialManager: Starting to spawn ", definition.trial_objects.size(), " objects")
+	Log.debug("TrialManager: Starting to spawn ", definition.trial_objects.size(), " objects")
 
-	for obj_def in definition.trial_objects:
+	for obj_def: TrialObject in definition.trial_objects:
 		if obj_def.scene_path.is_empty():
 			continue
 
@@ -109,13 +109,13 @@ func _spawn_trial_objects(definition: TrialDefinition) -> void:
 		if instance is CheckpointGate:
 			instance.checkpoint_index = checkpoint_index
 			checkpoint_index += 1
-			print("TrialManager: Set checkpoint index ", instance.checkpoint_index, " for gate at ", obj_def.position)
+			Log.debug("TrialManager: Set checkpoint index ", instance.checkpoint_index, " for gate at ", obj_def.position)
 
 		spawn_parent.add_child(instance)
 		spawned_objects.append(instance)
-		print("TrialManager: Spawned object at world position: ", instance.global_position)
+		Log.debug("TrialManager: Spawned object at world position: ", instance.global_position)
 
-	print("TrialManager: Finished spawning ", spawned_objects.size(), " objects for trial: ", definition.id)
+	Log.debug("TrialManager: Finished spawning ", spawned_objects.size(), " objects for trial: ", definition.id)
 
 func _on_trial_completed(success: bool) -> void:
 	"""Handle trial completion"""
@@ -131,7 +131,7 @@ func _on_trial_completed(success: bool) -> void:
 		# Award reward
 		if not active_trial.definition.reward_part_id.is_empty():
 			PlayerInventory.add_part(active_trial.definition.reward_part_id)
-			print("TrialManager: Awarded part: ", active_trial.definition.reward_part_id)
+			Log.debug("TrialManager: Awarded part: ", active_trial.definition.reward_part_id)
 
 	# Clean up
 	_cleanup_trial()
@@ -147,15 +147,18 @@ func _cleanup_trial() -> void:
 			obj.queue_free()
 	spawned_objects.clear()
 
+	if is_instance_valid(active_trial):
+		active_trial.queue_free()
+
 	active_trial = null
-	print("TrialManager: Trial cleaned up")
+	Log.debug("TrialManager: Trial cleaned up")
 
 func cancel_trial() -> void:
 	"""Cancel the active trial"""
 	if not active_trial:
 		return
 
-	print("TrialManager: Trial cancelled: ", active_trial.definition.id)
+	Log.debug("TrialManager: Trial cancelled: ", active_trial.definition.id)
 	active_trial.fail()
 
 func is_trial_active() -> bool:
@@ -171,7 +174,7 @@ func mark_trial_completed(trial_id: String) -> void:
 	if trial_id not in completed_trials:
 		completed_trials.append(trial_id)
 		SaveManager.save_game()  # Auto-save on trial completion
-		print("TrialManager: Trial marked as completed: ", trial_id)
+		Log.debug("TrialManager: Trial marked as completed: ", trial_id)
 
 func get_active_trial() -> Trial:
 	"""Get the currently active trial"""

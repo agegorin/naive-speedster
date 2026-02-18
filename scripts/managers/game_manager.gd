@@ -14,12 +14,12 @@ enum GameState {
 var current_state: GameState = GameState.MAIN_MENU
 
 func _ready() -> void:
-	print("GameManager initialized")
+	Log.debug("GameManager initialized")
 
 func change_state(new_state: GameState) -> void:
 	"""Change the current game state"""
 	current_state = new_state
-	print("Game state changed to: ", GameState.keys()[new_state])
+	Log.debug("Game state changed to: ", GameState.keys()[new_state])
 
 func pause_game() -> void:
 	"""Pause the game"""

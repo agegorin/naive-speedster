@@ -4,14 +4,14 @@ extends Node
 ## This script creates a simple 3-checkpoint trial for testing.
 
 func _ready() -> void:
-	print("TestTrialSetup: _ready() called")
+	Log.debug("TestTrialSetup: _ready() called")
 	_create_test_trial()
 
 func _create_test_trial() -> void:
 	"""Create and register a test checkpoint trial"""
-	print("TestTrialSetup: _create_test_trial() starting")
+	Log.debug("TestTrialSetup: _create_test_trial() starting")
 	var definition = TrialDefinition.new()
-	print("TestTrialSetup: TrialDefinition created")
+	Log.debug("TestTrialSetup: TrialDefinition created")
 	definition.id = "test_checkpoint_1"
 	definition.display_name = "Test Checkpoint Trial"
 	definition.description = "Pass through 3 checkpoints in 30 seconds"
@@ -42,9 +42,9 @@ func _create_test_trial() -> void:
 	definition.trial_objects.append(gate2)
 	definition.trial_objects.append(gate3)
 
-	print("TestTrialSetup: Added ", definition.trial_objects.size(), " gates to trial definition")
+	Log.debug("TestTrialSetup: Added ", definition.trial_objects.size(), " gates to trial definition")
 
 	# Register the trial
 	TrialManager.register_trial(definition)
 
-	print("TestTrialSetup: Test trial created and registered")
+	Log.debug("TestTrialSetup: Test trial created and registered")

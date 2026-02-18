@@ -8,4 +8,4 @@ class_name Chunk
 
 func _ready() -> void:
 	if chunk_data:
-		print("Chunk loaded: ", chunk_data.get_chunk_name(), " at ", chunk_data.get_world_position())
+		Log.debug("Chunk loaded: ", chunk_data.get_chunk_name(), " at ", chunk_data.get_world_position())

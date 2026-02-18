@@ -10,7 +10,7 @@ class_name TrialDefinition
 @export var description: String = ""
 @export var trial_type: TrialTypes.TrialType = TrialTypes.TrialType.CHECKPOINT
 @export var spawn_chunk: Vector2i = Vector2i.ZERO
-@export var trial_objects: Array = []  ## Array of TrialObject (untyped to avoid assignment issues)
+@export var trial_objects: Array[TrialObject] = []
 @export var spawn_position: Vector3 = Vector3.ZERO  ## Where trial starts
 
 ## Trial-specific parameters

@@ -26,7 +26,7 @@ var recovery_start_transform: Transform3D
 var recovery_target_transform: Transform3D
 
 func _ready() -> void:
-	print("VehicleController initialized")
+	Log.debug("VehicleController initialized")
 
 func _physics_process(delta: float) -> void:
 	if is_recovering:
@@ -60,14 +60,15 @@ func _check_flip_status(delta: float) -> void:
 	"""Check if car is upside down and start recovery if needed"""
 	# Check if car is upside down based on up vector
 	var up_direction = global_transform.basis.y
-	var angle_from_upright = rad_to_deg(acos(up_direction.dot(Vector3.UP)))
+	var up_dot = clamp(up_direction.dot(Vector3.UP), -1.0, 1.0)
+	var angle_from_upright = rad_to_deg(acos(up_dot))
 
 	# Car is upside down if tilted more than the threshold
 	if angle_from_upright > flip_detection_angle:
 		if not is_upside_down:
 			is_upside_down = true
 			upside_down_timer = 0.0
-			print("Vehicle flipped! Starting recovery timer...")
+			Log.debug("Vehicle flipped! Starting recovery timer...")
 
 		upside_down_timer += delta
 
@@ -81,7 +82,7 @@ func _check_flip_status(delta: float) -> void:
 
 func _start_recovery() -> void:
 	"""Begin the flip recovery sequence"""
-	print("Starting flip recovery...")
+	Log.debug("Starting flip recovery...")
 	is_recovering = true
 	recovery_timer = 0.0
 
@@ -141,7 +142,7 @@ func _handle_recovery(delta: float) -> void:
 
 func _complete_recovery() -> void:
 	"""Complete the recovery and re-enable controls"""
-	print("Flip recovery complete!")
+	Log.debug("Flip recovery complete!")
 
 	# Re-enable physics
 	freeze = false

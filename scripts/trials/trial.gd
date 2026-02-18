@@ -25,7 +25,7 @@ func start() -> void:
 	checkpoints_passed = 0
 	current_checkpoint = 0
 	trial_started.emit()
-	print("Trial started: ", definition.display_name)
+	Log.debug("Trial started: ", definition.display_name)
 
 func update(delta: float) -> void:
 	"""Update trial logic"""
@@ -50,7 +50,7 @@ func pass_checkpoint(index: int) -> void:
 	checkpoints_passed += 1
 	current_checkpoint = index + 1
 	checkpoint_passed.emit(index, definition.checkpoint_count)
-	print("Checkpoint passed: ", index + 1, "/", definition.checkpoint_count)
+	Log.debug("Checkpoint passed: ", index + 1, "/", definition.checkpoint_count)
 
 	# Check if all checkpoints passed
 	if checkpoints_passed >= definition.checkpoint_count:
@@ -63,7 +63,7 @@ func complete() -> void:
 
 	status = TrialTypes.TrialStatus.COMPLETED
 	trial_completed.emit(true)
-	print("Trial completed: ", definition.display_name)
+	Log.debug("Trial completed: ", definition.display_name)
 
 func fail() -> void:
 	"""Fail the trial"""
@@ -72,7 +72,7 @@ func fail() -> void:
 
 	status = TrialTypes.TrialStatus.FAILED
 	trial_completed.emit(false)
-	print("Trial failed: ", definition.display_name)
+	Log.debug("Trial failed: ", definition.display_name)
 
 func get_time_remaining() -> float:
 	"""Get remaining time for checkpoint trials"""

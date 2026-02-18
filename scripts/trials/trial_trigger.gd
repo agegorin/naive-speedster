@@ -79,7 +79,7 @@ func _show_prompt() -> void:
 	# Emit signal that UI can listen to
 	var definition = TrialManager.get_trial_definition(trial_id)
 	if definition:
-		print("TrialTrigger: Press [E] to start: ", definition.display_name)
+		Log.debug("TrialTrigger: Press [E] to start: ", definition.display_name)
 		# TODO: Show actual UI prompt when UI system is ready
 
 func _hide_prompt() -> void:
@@ -96,4 +96,4 @@ func _activate_trial() -> void:
 	var success = TrialManager.start_trial(trial_id)
 	if success:
 		_hide_prompt()
-		print("TrialTrigger: Started trial: ", trial_id)
+		Log.debug("TrialTrigger: Started trial: ", trial_id)
