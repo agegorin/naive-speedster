@@ -1,0 +1,45 @@
+[gd_scene load_steps=6 format=3 uid="uid://chunk_1_0"]
+
+[ext_resource type="Script" path="res://scripts/world/chunk.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://trial_trigger" path="res://scenes/trials/trial_trigger.tscn" id="2"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+size = Vector3(100, 1, 100)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(100, 1, 100)
+
+[sub_resource type="StandardMaterial3D" id="Material_e"]
+albedo_color = Color(0.8, 0.4, 0.8, 1)
+
+[node name="Chunk_1_0" type="Node3D"]
+script = ExtResource("1")
+
+[node name="StaticGeometry" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="Ground" type="MeshInstance3D" parent="StaticGeometry"]
+mesh = SubResource("BoxMesh_ground")
+surface_material_override/0 = SubResource("Material_e")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticGeometry"]
+shape = SubResource("BoxShape3D_ground")
+
+[node name="Props" type="Node3D" parent="."]
+
+[node name="EdgeMarker" type="CSGCylinder3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0)
+radius = 2.0
+height = 6.0
+
+[node name="TrialTriggers" type="Node3D" parent="."]
+
+[node name="TestTrial" parent="TrialTriggers" instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 0)
+trial_id = "test_checkpoint_1"
+auto_register = false
+trial_name = "Test Checkpoint Trial"
+time_limit = 30.0
+checkpoint_count = 3
+
+[node name="SpawnPoints" type="Node3D" parent="."]

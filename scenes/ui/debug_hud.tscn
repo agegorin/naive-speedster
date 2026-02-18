@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://debug_hud"]
+
+[ext_resource type="Script" path="res://scripts/debug/chunk_debug_display.gd" id="1"]
+
+[node name="DebugHUD" type="CanvasLayer"]
+
+[node name="ChunkInfo" type="Label" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 300.0
+offset_bottom = 100.0
+script = ExtResource("1")

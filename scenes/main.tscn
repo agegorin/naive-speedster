@@ -1,0 +1,38 @@
+[gd_scene load_steps=7 format=3 uid="uid://c3q0kfqwxm3y4"]
+
+[ext_resource type="PackedScene" uid="uid://djdqo45g2gixw" path="res://scenes/vehicle/player_vehicle.tscn" id="2"]
+[ext_resource type="PackedScene" uid="uid://debug_hud" path="res://scenes/ui/debug_hud.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://trial_hud" path="res://scenes/ui/trial_hud.tscn" id="4"]
+[ext_resource type="Script" path="res://scripts/trials/test_trial_setup.gd" id="5"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("ProceduralSkyMaterial_1")
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+sky = SubResource("Sky_1")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="Main" type="Node3D"]
+
+[node name="TestTrialSetup" type="Node" parent="."]
+script = ExtResource("5")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 50, 0)
+shadow_enabled = true
+
+[node name="PlayerVehicle" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+
+[node name="DebugHUD" parent="." instance=ExtResource("3")]
+
+[node name="TrialHUD" parent="." instance=ExtResource("4")]
